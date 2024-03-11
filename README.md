@@ -16,7 +16,7 @@
 
 ## 3. 利用手順
 
-本システムの構築手順及び利用手順については [利用マニュアル](https://github.com/Project-PLATEAU/Earthquake-simulation-tools/blob/gh-pages/index.html) を参照してください。
+本システムの構築手順及び利用手順については [利用マニュアル](https://project-plateau.github.io/Earthquake-simulation-tools/index.html) を参照してください。
 
 ## 4. システム概要
 
