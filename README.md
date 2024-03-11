@@ -12,11 +12,11 @@
 
 「建物振動シミュレーションシステム」は、Project PLATEAUで提供している3D建物データの属性を防災の用途に活用することを目的に開発しました。
 
-本システムは、一般ユーザ向けにGUIを備えたオープンソースソフトウェアとしてフルスクラッチで開発されています。 本システムの詳細については本リポジトリの [gh-page](https://github.com/Project-PLATEAU/Earthquake-simulation-tools/blob/gh-pages/index.html) を参照してください。
+本システムは、一般ユーザ向けにGUIを備えたオープンソースソフトウェアとしてフルスクラッチで開発されています。 
 
 ## 3. 利用手順
 
-本システムの構築手順及び利用手順については [gh-page](https://github.com/Project-PLATEAU/Earthquake-simulation-tools/blob/gh-pages/index.html) を参照してください。
+本システムの構築手順及び利用手順については [利用マニュアル]([https://github.com/Project-PLATEAU/Earthquake-simulation-tools/blob/gh-pages/index.html](https://project-plateau.github.io/Earthquake-simulation-tools/index.html)) を参照してください。
 
 ## 4. システム概要
 
