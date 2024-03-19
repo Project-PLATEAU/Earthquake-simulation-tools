@@ -1,0 +1,69 @@
+{
+  "layers": [
+    {
+      "id": "building_damage",
+      "type": "mvt",
+      "source": "https://bridge-eqsim-data-tiles.s3.ap-northeast-1.amazonaws.com/22201/damage_estimates/{z}/{x}/{y}.pbf",
+      "color": [200, 200, 200, 200],
+      "opacity": 0.8,
+      "minZoom": 3,
+      "maxZoom": 14,
+      "visible": true,
+      "tooltipType": "table"
+    },
+    {
+      "id": "main_shock",
+      "type": "temporal_displacement",
+      "source": "https://bridge-eqsim-data-tiles.s3.ap-northeast-1.amazonaws.com/22201/displacement/{z}/{x}/{y}.pbf",
+      "visible": true,
+      "minZoom": 4,
+      "maxZoom": 14,
+      "labels": {
+        "0": "0",
+        "30": "0:03",
+        "60": "0:06",
+        "90": "0:09",
+        "120": "0:12"
+      },
+      "maxVal": 120,
+      "speed": 0,
+      "delay": 10
+    },
+    {
+      "id": "emergency_route",
+      "type": "raster",
+      "source": "https://tile.geospatial.jp/kokudosuuchijoho/kinkyuyusoudouro/22/{z}/{x}/{y}.png",
+      "minzoom": 0,
+      "maxzoom": 18,
+      "visible": true
+    },
+    {
+      "tooltipType": "table",
+      "id": "shelter",
+      "data": "./shelter.geojson",
+      "getSize": 10,
+      "sizeScale": 8,
+      "icon": {
+          "url": "images/marker-red.png",
+          "width": 32,
+          "height": 32,
+          "anchorY": 32,
+          "color": "red"
+      },
+      "minzoom": 8,
+      "visible": true,
+      "type": "geojsonicon",
+      "iconSizeScale": 40
+    },
+    {
+      "id": "plateau-building",
+      "type": "mvt",
+      "source": "https://digitalcityservice.s3.ap-northeast-1.amazonaws.com/plateau/22100/{z}/{x}/{y}.pbf",
+      "getFillColor": [200, 200, 200, 200],
+      "minZoom": 12,
+      "maxZoom": 18,
+      "visible": true,
+      "tooltipType": "table"
+    }
+  ]
+}

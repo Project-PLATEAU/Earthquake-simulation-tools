@@ -1,56 +1,56 @@
 <template>
-    <div class="m-10">
-        <div class="flex space-x-4 mt-4">
-          <div class="bg-slate-200 w-64 h-80">
-            <div class="font-bold">地域</div>
-            <div class="mt-6">
-              <div class="pr-6 font-bold">名称:</div>
-              <div class="w-2/5">{{simulationReserveDetail!.region_presets_name}}</div>
-            </div>
-            <div class="mt-6">
-              <div class="pr-6 font-bold">付帯情報:</div>
-              <div class="w-2/5 whitespace-pre">{{simulationReserveDetail!.region_presets_additional_info}}</div>
-            </div>
-          </div>
-          <div class="bg-slate-200 w-64 h-80">
-            <div class="font-bold">地振動データ</div>
-            <div class="mt-6">
-              <div class="pr-6 font-bold">名称:</div>
-              <div class="w-2/5">{{simulationReserveDetail!.earthquake_presets_name}}</div>
-            </div>
-            <div class="mt-6">
-              <div class="pr-6 font-bold">付帯情報:</div>
-              <div class="w-2/5 whitespace-pre">{{simulationReserveDetail!.earthquake_additional_info}}</div>
-            </div>
-          </div>
+  <div class="m-48 detail-view detail-simulation">
+    <div class="text-center flex justify-center space-x-6 mt-4">
+      <div class="border border-solid border-blue-500 h-64 w-[470px] p-5">
+        <div class="font-bold text-left w-[90%] my-0 mx-auto">地域</div>
+        <div class="mt-2">
+          <div class="text-left font-bold w-[90%] my-0 ax-auto">名称:</div>
+          <div class="text-left w-[90%] my-0 ax-auto">{{simulationReserveDetail!.region_presets_name}}</div>
         </div>
         <div class="mt-6">
-          <div class="w-dvw flex flex-row">
-            <div class="basis-64">
-              <label class="text-sm">ステータス</label>
-              <br/>
-              <label>{{ simulationReserveDetail!.calc_status_name }}</label>
-            </div>
-            <div class="basis-64">
-              <label class="text-sm">登録日時</label>
-              <br/>
-              <label>{{ simulationReserveDetail!.create_date }}</label>
-            </div>
-            <button 
-              class="border bg-slate-200 basis-36 py-1 px-3 w-32 ml-6 hover:cursor-pointer"
-              :disabled="[2,4,5,6].includes(simulationReserveDetail!.calc_status_id)"
-              @click="clickDownloadCalcResult">計算結果</button>
-            <button 
-              class="border bg-slate-200 basis-36 py-1 px-3 w-32 ml-6 hover:cursor-pointer" 
-              :disabled="simulationReserveDetail!.calc_status_id != 5"
-              @click="clickDownloadVisualizationData">可視データ</button>
-            <button 
-              class="border bg-slate-200 basis-36 py-1 px-3 w-32 ml-6 hover:cursor-pointer" 
-              :disabled="simulationReserveDetail!.calc_status_id != 5"
-              @click="clickVisualizationPage">確認</button>
-          </div>
+          <div class="text-left font-bold w-[90%] my-0 ax-auto">付帯情報:</div>
+          <div class="text-left w-[90%] my-0 ax-auto">{{simulationReserveDetail!.region_presets_additional_info}}</div>
         </div>
+      </div>
+      <div class="border border-solid border-blue-500 h-64 w-[470px] p-5">
+        <div class="font-bold text-left w-[90%] my-0 mx-auto">地振動データ</div>
+        <div class="mt-2">
+          <div class="text-left font-bold w-[90%] my-0 ax-auto">名称:</div>
+          <div class="text-left w-[90%] my-0 ax-auto">{{simulationReserveDetail!.earthquake_presets_name}}</div>
+        </div>
+        <div class="mt-6">
+          <div class="text-left font-bold w-[90%] my-0 ax-auto">付帯情報:</div>
+          <div class="text-left w-[90%] my-0 ax-auto">{{simulationReserveDetail!.earthquake_additional_info}}</div>
+        </div>
+      </div>
     </div>
+    <div class="mt-20 text-center flex justify-center">
+      <div class="text-left flex justify-center w-[470px]">
+        <div class="basis-64">
+          <label class="text-left font-bold w-[90%] my-0 ax-auto">ステータス:</label>
+          <label class="text-left w-[90%] my-0 ax-auto">{{ simulationReserveDetail!.calc_status_name }}</label>
+        </div>
+        <div class="basis-64">
+          <label class="text-left font-bold w-[90%] my-0 ax-auto">登録日時:</label>
+          <label class="text-left w-[90%] my-0 ax-auto">{{ simulationReserveDetail!.create_date }}</label>
+        </div>
+      </div>
+      <div class="text-center flex justify-end w-[470px] space-x-6">
+        <button
+          class="bg-blue-500 text-white text-xs h-8 leading-4 rounded-md px-4"
+          :disabled="[2,4,5,6].includes(simulationReserveDetail!.calc_status_id)"
+          @click="clickDownloadCalcResult">計算結果</button>
+        <button
+          class="bg-blue-500 text-white text-xs h-8 leading-4 rounded-md px-4"
+          :disabled="simulationReserveDetail!.calc_status_id != 5"
+          @click="clickDownloadVisualizationData">可視データ</button>
+        <button
+          class="bg-blue-500 text-white text-xs h-8 leading-4 rounded-md px-4"
+          :disabled="simulationReserveDetail!.calc_status_id != 5"
+          @click="clickVisualizationPage">確認</button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -81,12 +81,10 @@ const clickDownloadCalcResult = () => {
   // 計算結果
   router.push({name: "RegionPresetList"});
 }
-
 const clickDownloadVisualizationData = () => {
   // 可視データ
   router.push({name: "RegionPresetList"});
 }
-
 const clickVisualizationPage = () => {
   // 確認
   router.push({name: "RegionPresetList"});

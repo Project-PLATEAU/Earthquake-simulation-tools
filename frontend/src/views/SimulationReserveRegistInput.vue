@@ -1,31 +1,27 @@
 <template>
-    <div class="m-10">
-        <div class="mt-10">
-          <label class="pr-6 w-32 inline-block">地域</label>
-          <select class="w-2/5 ml-20" v-model="regionPresetSelected">
+    <div class="m-48 regist-view regist-simulation">
+      <div class="text-center">
+        <div class="mt-10 text-left">
+          <label for="region-select" class="block font-bold">地域</label>
+          <select id="region-select" class="block text-left w-full h-10 rounded-md border border-solid border-blue-500" v-model="regionPresetSelected">
             <option v-for="preset in regionPresets" :value="preset">
               {{ preset.name }}
             </option>
           </select>
         </div>
-        <div class="mt-10">
-          <label class="pr-6 w-32 inline-block">地振動データ</label>
-          <select class="w-2/5 ml-20" v-model="earthQuakePresetSelected">
+        <div class="mt-10 text-left">
+          <label class="block font-bold">地振動データ</label>
+          <select class="block text-left w-full h-10 rounded-md border border-solid border-blue-500" v-model="earthQuakePresetSelected">
             <option v-for="preset in earthQuakePresets" :value="preset">
               {{ preset.name }}
             </option>
           </select>
         </div>
-        <div class="mt-20">
-          <div class="text-center">
-            <button class="border bg-slate-200 py-1 px-6 w-56" @click="clickSimulationExecute">シミュレーション実行</button>
-          </div>
+        <div class="mt-20 text-center flex justify-center space-x-6">
+          <button class="bg-blue-500 text-white text-xs h-8 leading-4 rounded-md px-4" @click="clickReturn">戻る</button>
+          <button class="bg-blue-500 text-white text-xs h-8 leading-4 rounded-md px-4" @click="clickSimulationExecute">シミュレーション実行</button>
         </div>
-        <div class="mt-6">
-          <div class="w-72 grid grid-cols-2 gap-2">
-            <button class="border bg-slate-200 py-1 px-6 w-32" @click="clickReturn">戻る</button>
-          </div>
-        </div>
+      </div>
     </div>
 </template>
 

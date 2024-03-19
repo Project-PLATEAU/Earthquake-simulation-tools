@@ -1,12 +1,10 @@
 <template>
-    <div class="mt-48">
-        <div class="mt-10 text-center">
+    <div class="mt-60 regist-view complete-simulation">
+        <div class="text-center">
           <label>シミュレーションの実行予約が完了しました</label>
         </div>
-        <div class="mt-32">
-          <div class="text-center">
-            <button class="border bg-slate-200 py-1 px-6 w-64" @click="clickSimulationList">シミュレーション予約一覧</button>
-          </div>
+        <div class="mt-12 text-center flex justify-center">
+          <button class="bg-blue-500 text-white text-xs h-8 leading-4 rounded-md py-[10px] px-[16px]" @click="clickSimulationList">シミュレーション予約一覧</button>
         </div>
     </div>
 </template>
@@ -25,5 +23,4 @@ const clickSimulationList = async ()=>{
     console.log(e);
   }
 }
-
 </script>

@@ -4,7 +4,7 @@
   </div>
 
   <div
-    class="bg-white rounded-lg sm:max-w-md sm:w-full sm:mx-auto sm:overflow-hidden border border-[#a5c9ff]"
+    class="bg-white rounded-lg sm:max-w-md sm:w-full sm:mx-auto sm:overflow-hidden border border-blue-200"
   >
     <div class="mt-6">
       <div class="w-full">
@@ -18,14 +18,14 @@
             <li>
               <a
                 @click="clickToCityGmlPresetList"
-                class="text-gray-700 hover:text-indigo-600 hover:bg-gray-100 group flex gap-x-3 rounded-md p-2 pl-3 text-sm leading-6 font-semibold"
+                class="text-gray-700 hover:text-indigo-600 hover:bg-gray-100 group flex gap-x-3 rounded-md p-2 pl-3 text-sm leading-6 font-semibold underline hover:cursor-pointer"
                 >地域プリセット</a
               >
             </li>
             <li>
               <a
                 @click="clickToEarthQuakePresetList"
-                class="text-gray-700 hover:text-indigo-600 hover:bg-gray-100 group flex gap-x-3 rounded-md p-2 pl-3 text-sm leading-6 font-semibold"
+                class="text-gray-700 hover:text-indigo-600 hover:bg-gray-100 group flex gap-x-3 rounded-md p-2 pl-3 text-sm leading-6 font-semibold underline hover:cursor-pointer"
                 >地震動プリセット</a
               >
             </li>
@@ -33,13 +33,13 @@
         </div>
       </div>
       <div class="w-full">
-        <hr class="h-px my-4 bg-[#a5c9ff] border-0" />
+        <hr class="h-px my-4 bg-blue-200 border-0" />
         <div class="px-4 py-5">
           <ul>
             <li>
               <a
                 @click="clickToReserveSimulation"
-                class="text-gray-700 hover:text-indigo-600 hover:bg-gray-100 group flex gap-x-3 rounded-md p-2 pl-3 text-sm leading-6 font-semibold"
+                class="text-gray-700 hover:text-indigo-600 hover:bg-gray-100 group flex gap-x-3 rounded-md p-2 pl-3 text-sm leading-6 font-semibold underline hover:cursor-pointer"
                 >シミュレーション予約登録</a
               >
             </li>
@@ -47,13 +47,13 @@
         </div>
       </div>
       <div class="w-full">
-        <hr class="h-px my-4 bg-[#a5c9ff] border-0" />
+        <hr class="h-px my-4 bg-blue-200 border-0" />
         <div class="px-4 py-5">
           <ul>
             <li>
               <a
                 @click="clickToManageSimulation"
-                class="text-gray-700 hover:text-indigo-600 hover:bg-gray-100 group flex gap-x-3 rounded-md p-2 pl-3 text-sm leading-6 font-semibold"
+                class="text-gray-700 hover:text-indigo-600 hover:bg-gray-100 group flex gap-x-3 rounded-md p-2 pl-3 text-sm leading-6 font-semibold underline hover:cursor-pointer"
                 >シミュレーション管理</a
               >
             </li>

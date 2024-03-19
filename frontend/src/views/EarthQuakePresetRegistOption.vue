@@ -1,20 +1,20 @@
 <template>
-    <div class="m-10">
-        <div class="text-xl">地振動の付帯情報登録（編集）</div>
-        <div class="mt-10">
-          <label class="pr-6">地振動識別名</label>
-          <input type="text" maxlength="255" class="w-2/5 ml-20" v-model="formData.name" />
-          <button class="border bg-slate-200 py-1 px-6 w-32 ml-6" @click="clickUpdate">更新</button>
+    <div class="m-10 regist-view regist-additional-info">
+        <div class="text-xl font-bold">地振動の付帯情報登録（編集）</div>
+        <div class="text-center">
+          <div class="mt-10">
+          <label class="inline-block text-left text-base font-bold w-48">地振動識別名</label>
+          <input type="text" maxlength="255" class="inline-block text-left w-[600px] inline-block text-left border border-solid border-blue-500" v-model="formData.name" />
+          <button class="bg-transparent text-blue-500 rounded-md border border-solid border-blue-500 text-xs ml-2 px-4 h-10 hover:text-blue-400" @click="clickUpdate">更新</button>
         </div>
         <div class="mt-10">
-          <label class="pr-6">地振動に関する付帯情報</label>
-          <textarea class="w-2/5 h-60 align-top" v-model="formData.additional_info"></textarea>
-          <button class="border bg-slate-200 py-1 px-6 w-32 ml-6" @click="clickUpdate">更新</button>
+          <label class="inline-block text-left text-base font-bold w-48 align-top">地振動に関する付帯情報</label>
+          <textarea class="inline-block text-left w-[600px] h-48 rounded-md border border-solid border-blue-500" v-model="formData.additional_info"></textarea>
+          <button class="bg-transparent text-blue-500 rounded-md border border-solid border-blue-500 text-xs ml-2 px-4 align-top h-10 hover:text-blue-400" @click="clickUpdate">更新</button>
         </div>
-        <div class="mt-6">
-          <div class="w-72 grid grid-cols-2 gap-2">
-            <button class="border bg-slate-200 py-1 px-6 w-32" @click="clickReturn">戻る</button>
-          </div>
+        <div class="mt-6 text-center flex justify-center">
+          <button class="bg-blue-500 text-white text-xs h-8 leading-4 rounded-md px-4" @click="clickReturn">戻る</button>
+        </div>
         </div>
     </div>
 </template>

@@ -1,28 +1,28 @@
 <template>
-    <div class="m-10">
-        <div class="text-xl">シミュレーション実行確認</div>
-        <div class="mt-10">
-          <label>以下の内容でシミュレーションを実行します。</label>
-          <br/>
-          <label>よろしいですか？</label>
+  <div class="m-10 regist-view confirm-simulation">
+    <div class="text-xl font-bold">シミュレーション実行確認</div>
+    <div class="text-center">
+      <div class="mt-10 text-left w-[770px] mt-[60px] mb-0 mx-auto">
+        <label>以下の内容でシミュレーションを実行します。</label>
+        <br/>
+        <label>よろしいですか？</label>
+      </div>
+      <div class="border border-solid border-blue-500 h-40 w-[770px] mt-[10px] mx-auto mb-0">
+        <div class="mt-12">
+          <label class="inline-block text-left text-base font-bold w-48">地域</label>
+          <label class="inline-block text-left w-[500px]">{{ simulationReserveStore.RegionPresetName }}</label>
         </div>
-        <div class="mt-16 bg-slate-200 w-dvw h-48">
-          <div >
-            <label class="mt-12 pr-6 w-32 inline-block">地域</label>
-            <label>{{ simulationReserveStore.RegionPresetName }}</label>
-          </div>
-          <div>
-            <label class="mt-6 pr-6 w-32 inline-block">地振動データ</label>
-            <label>{{ simulationReserveStore.EarthQuakePresetName }}</label>
-          </div>
+        <div class="mt-6">
+          <label class="inline-block text-left text-base font-bold w-48">地振動データ</label>
+          <label class="inline-block text-left w-[500px]">{{ simulationReserveStore.EarthQuakePresetName }}</label>
         </div>
-        <div class="mt-32">
-          <div class="text-right">
-            <button class="border bg-slate-200 py-1 px-6 w-48" @click="clickSimulationCancel">キャンセル</button>
-            <button class="border bg-slate-200 py-1 px-6 w-48 ml-6" @click="clickSimulationExecute">実行</button>
-          </div>
-        </div>
+      </div>
+      <div class="mt-32 text-center flex justify-center space-x-6">
+        <button class="bg-blue-500 text-white text-xs h-8 leading-4 rounded-md py-[10px] px-[16px]" @click="clickSimulationCancel">キャンセル</button>
+        <button class="bg-blue-500 text-white text-xs h-8 leading-4 rounded-md py-[10px] px-[16px]" @click="clickSimulationExecute">実行</button>
+      </div>
     </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -54,7 +54,6 @@ const clickSimulationExecute = async ()=>{
 
   }
 }
-
 const clickSimulationCancel = async ()=>{
   try {
     // メニュー画面へ
@@ -64,5 +63,4 @@ const clickSimulationCancel = async ()=>{
     console.log(e);
   }
 }
-
 </script>

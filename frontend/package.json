@@ -13,7 +13,8 @@
   "dependencies": {
     "@aws-amplify/ui-vue": "^3.1.20",
     "@headlessui/vue": "^1.7.14",
-    "@heroicons/vue": "^2.0.18",
+    "@heroicons/vue": "^2.1.1",
+    "amazon-cognito-identity-js": "^6.3.10",
     "aws-amplify": "^5.3.13",
     "axios": "^1.6.5",
     "maplibre-gl": "^3.6.2",

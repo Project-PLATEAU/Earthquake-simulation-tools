@@ -1,35 +1,32 @@
 <template>
-  <div class="m-10">
-    <div class="text-xl">地域（CityGML）の追加・編集</div>
-    <div class="mt-10">
-      <label class="pr-6">地域名</label>
-      <input
-        type="text"
-        maxlength="255"
-        class="w-2/5"
-        v-model="formData.name"
-      />
-    </div>
-    <div class="mt-6">
-      <button class="border bg-slate-200 py-1 px-6" @click="clickMap">
-        地図からモデルを追加
-      </button>
-      <div
-        class="inline-block p-5 w-96 h-60 bg-slate-200 ml-14 text-wrap overflow-y-scroll"
-      >
-        {{ formData.mesh_codes }}
+  <div class="m-10 regist-view regist-name">
+    <div class="text-xl font-bold">CityGML（3D都市モデル）の追加・編集</div>
+    <div class="text-center">
+      <div class="mt-10">
+        <label class="inline-block text-left text-base font-bold w-24">地域名</label>
+        <input
+          type="text"
+          maxlength="255"
+          class="inline-block text-left w-[600px] h-10 rounded-md border border-solid border-blue-500"
+          v-model="formData.name"
+        />
       </div>
-    </div>
-    <div class="mt-6">
-      <div class="w-72 grid grid-cols-2 gap-2">
-        <button class="border bg-slate-200 py-1 px-6 w-32" @click="clickReturn">
+      <div class="mt-6">
+        <button class="bg-transparent text-blue-500 rounded-md border border-solid border-blue-500 align-top text-xs py-[14px] px-[28px]" @click="clickMap">
+          地図からモデルを追加
+        </button>
+        <div
+          class="inline-block p-5 w-96 h-60 bg-slate-200 ml-14 break-words text-left overflow-auto"
+        >
+          {{ formData.mesh_codes }}
+        </div>
+      </div>
+      <div class="mt-6 text-center flex justify-center space-x-6">
+        <button class="bg-blue-500 text-white text-xs h-8 leading-4 rounded-md px-4" @click="clickReturn">
           戻る
         </button>
-        <button
-          class="border bg-slate-200 py-1 px-6 w-32"
-          @click="clickCreateAndEditPreset"
-        >
-          更新
+        <button class="bg-blue-500 text-white text-xs h-8 leading-4 rounded-md px-4" @click="clickCreateAndEditPreset">
+          地域(3D都市モデル)の追加・編集
         </button>
       </div>
     </div>
@@ -132,6 +129,11 @@ const clickMap = () => {
 };
 
 onMounted(() => {
+  // idが指定された場合は更新モード
+  if (props.id != undefined || props.id != "") {
+    getRegionPresetDetail();
+  }
+
   // メッシュコードの取得
   const meshCodeList: string[] = meshCodeStore.meshCodeList;
   formData.value.mesh_codes = meshCodeList.join(",");
@@ -140,9 +142,5 @@ onMounted(() => {
     formData.value.name = meshCodeStore.tempPresetName;
   }
 
-  // idが指定された場合は更新モード
-  if (props.id != undefined || props.id != "") {
-    getRegionPresetDetail();
-  }
 });
 </script>

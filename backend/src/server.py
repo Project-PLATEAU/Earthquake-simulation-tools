@@ -1,5 +1,5 @@
-from typing import Optional
-from fastapi import FastAPI, HTTPException, File, Form, UploadFile
+from typing import Optional, Any, Dict
+from fastapi import FastAPI, HTTPException, File, Form, UploadFile, Header
 from starlette.middleware.cors import CORSMiddleware
 from mangum import Mangum
 import psycopg
@@ -9,6 +9,12 @@ from functools import lru_cache
 from . import config
 import json
 import boto3
+import os
+from jwt.utils import base64url_decode
+from fastapi import status
+import requests
+import jwt
+import re
 from botocore.client import Config
 from src.schema.region_preset import (
     RegionPreset,
@@ -62,6 +68,67 @@ def get_conn():
         user=settings.postgis_user,
         password=settings.postgis_password
     )
+    
+def get_jwk_data(kid: str) -> dict:
+    """JWKデータを取得する""" 
+    settings = get_settings()
+    COGNITO_USERPOOLID = settings.cognito_userpool_id
+    jwks_url = f"https://cognito-idp.ap-northeast-1.amazonaws.com/{COGNITO_USERPOOLID}/.well-known/jwks.json"
+    jwk_response = requests.get(jwks_url).json()
+    return next((jwk_data for jwk_data in jwk_response['keys'] if jwk_data["kid"] == kid), {})
+
+def decode_jwt_token(jwt_token: str, jwk_data: dict) -> dict:
+    """JWTトークンをデコードする"""
+    ALGORITHM = "RS256"
+    settings = get_settings()
+    COGNITO_USERPOOL_WEBCLIENTID = settings.cognito_userpool_webclient_id
+    jwk_key = jwt.PyJWK(jwk_data, algorithm=ALGORITHM)
+    return jwt.decode(jwt_token, jwk_key.key, algorithms=[ALGORITHM], audience=COGNITO_USERPOOL_WEBCLIENTID)
+
+def verify_jwt(jwt_token: str) -> dict:
+    """CognitoユーザープールのJWTの正当性をチェックし、payloadを取得する"""
+    try:
+        jwt_header = base64url_decode(jwt_token.split(".")[0])
+        header_kid = json.loads(jwt_header)['kid']
+
+        jwk_data = get_jwk_data(header_kid)
+        payload = decode_jwt_token(jwt_token, jwk_data)
+        
+        return {"success": True, "payload": payload}
+    except Exception as e:
+        print(e)
+        return {"success": False, "error": str(e)}
+
+def copy_all_keys_v2(source_bucket='', source_prefix='', target_bucket='', target_prefix='', dryrun=False):
+
+  contents_count = 0
+  next_token = ''
+
+  s3_client = boto3.client('s3', config=Config(signature_version='s3v4'))
+
+  while True:
+    if next_token == '':
+      response = s3_client.list_objects_v2(Bucket=source_bucket, Prefix=source_prefix)
+    else:
+      response = s3_client.list_objects_v2(Bucket=source_bucket, Prefix=source_prefix, ContinuationToken=next_token)
+
+    if 'Contents' in response:
+      contents = response['Contents']
+      contents_count = contents_count + len(contents)
+      for content in contents:
+        relative_prefix = re.sub('^' + source_prefix, '', content['Key'])
+        if not dryrun:
+          print('Copying: s3://' + source_bucket + '/' + content['Key'] + ' To s3://' + target_bucket + '/' + target_prefix + relative_prefix)
+          s3_client.copy_object(Bucket=target_bucket, Key=target_prefix + relative_prefix, CopySource={'Bucket': source_bucket, 'Key': content['Key']})
+        else:
+          print('DryRun: s3://' + source_bucket + '/' + content['Key'] + ' To s3://' + target_bucket + '/' + target_prefix + relative_prefix)
+
+    if 'NextContinuationToken' in response:
+      next_token = response['NextContinuationToken']
+    else:
+      break
+
+  print(f"contents_count:{contents_count}")
 
 # region_presets
 @_app.get("/region_presets", include_in_schema=True, tags=['region_preset'])
@@ -76,6 +143,7 @@ async def get_region_presets(page_num: int = 1, page_size: int = 10) -> RegionPr
             SELECT
             *
             FROM region_presets
+            ORDER BY create_date desc
             LIMIT %s OFFSET %s
             """
             cur.execute(sql, (page_size, (page_num - 1) * page_size))
@@ -260,6 +328,7 @@ async def get_earthquake_presets(page_num: int = 1, page_size: int = 10) -> Eart
             SELECT
             *
             FROM earthquake_presets
+            ORDER BY create_date DESC
             LIMIT %s OFFSET %s
             """
             cur.execute(sql, (page_size, (page_num - 1) * page_size))
@@ -380,9 +449,9 @@ async def post_earthquake_preset(
     s3_filename3 = "earthquake_presets_type3.csv" if file3 is not None else None
 
     # S3のKeyに成形する
-    key1 = "presets/{}/{}".format(id_of_new_row, s3_filename1) if file1 is not None else None
-    key2 = "presets/{}/{}".format(id_of_new_row, s3_filename2) if file2 is not None else None
-    key3 = "presets/{}/{}".format(id_of_new_row, s3_filename3) if file3 is not None else None
+    key1 = "{}/{}".format(id_of_new_row, s3_filename1) if file1 is not None else None
+    key2 = "{}/{}".format(id_of_new_row, s3_filename2) if file2 is not None else None
+    key3 = "{}/{}".format(id_of_new_row, s3_filename3) if file3 is not None else None
 
     s3_client = boto3.client('s3', config=Config(signature_version='s3v4'))
 
@@ -515,6 +584,7 @@ async def get_simulation_reserves(page_num: int = 1, page_size: int = 10, user_i
             INNER JOIN earthquake_presets ep ON sr.earthquake_presets_id = ep.id
             INNER JOIN region_presets rp ON sr.region_presets_id = rp.id
             WHERE sr.user_id = %s
+            ORDER BY sr.update_date DESC
             LIMIT %s OFFSET %s
             """
             cur.execute(sql, (user_id, page_size, (page_num - 1) * page_size))
@@ -656,12 +726,20 @@ async def get_simulation_reserve_downloads(id: int, user_id: int = 0):
         "s3_calc_result_file_path": simulation_reserve["s3_calc_result_file_path"],
     }
 
+#     s3 = boto3.client('s3')
+#     s3_client = boto3.client('s3', config=Config(signature_version='s3v4'))
+#      s3.generate_presigned_url(
+#   ClientMethod = 'get_object',
+#   Params = {'Bucket' : BUCKET, 'Key' : KEY},
+#   ExpiresIn = 3600,
+#   HttpMethod = 'GET')
+
 @_app.get("/simulation_reserve/{id}/visualize_url", include_in_schema=True, tags=['simulation_reserve'])
 async def get_simulation_reserve_visualize_url(id: int, user_id: int = 0):
     """
     指定したシミュレーション予約の可視化可能なURLを取得する
     """
-    simulation_reserve = await rget_simulation_reserve(id, user_id)
+    simulation_reserve = await get_simulation_reserve(id, user_id)
 
     return {
         "id": simulation_reserve["id"],
@@ -694,27 +772,57 @@ async def post_simulation_reserve(data:SimulationReserveCreateRequestBody)->Eart
             insert_sql = """
             INSERT INTO simulation_reserves
             (
-                session_id, user_id, calc_status_id,
-                region_presets_id, earthquake_presets_id, scp_server_path,
-                s3_calc_result_file_path, s3_visualize_file_path, visualize_url,
-                is_opened, calc_reserve_datetime, calc_complete_datetime,
-                visualize_complete_datetime, create_date, update_date
+                session_id, 
+                user_id, 
+                calc_status_id,
+                region_presets_id, 
+                earthquake_presets_id, 
+                scp_server_path,
+                s3_calc_result_file_path, 
+                s3_visualize_file_path, 
+                visualize_url,
+                is_opened, 
+                calc_reserve_datetime, 
+                calc_complete_datetime,
+                visualize_complete_datetime, 
+                create_date, 
+                update_date
             ) VALUES (
-                %s, %s, %s,
-                %s, %s, %s,
-                %s, %s, %s,
-                %s, %s, %s,
-                %s, %s, %s
+                %s, 
+                %s, 
+                %s,
+                %s, 
+                %s, 
+                %s,
+                %s, 
+                %s, 
+                %s,
+                %s, 
+                %s, 
+                %s,
+                %s, 
+                %s, 
+                %s
             ) RETURNING id
             ;
             """
             try:
                 insert_params = (
-                    session_id, data.user_id, calc_status,
-                    data.region_preset_id, data.earthquake_preset_id, None,
-                    None, None, None,
-                    False, calc_reserve_datetime, None,
-                    None, create_date, create_date,
+                    session_id, 
+                    data.user_id, 
+                    calc_status,
+                    data.region_preset_id, 
+                    data.earthquake_preset_id, 
+                    None,
+                    None, 
+                    None, 
+                    None,
+                    False, 
+                    calc_reserve_datetime, 
+                    None,
+                    None, 
+                    create_date, 
+                    create_date,
                 )
                 cur.execute(insert_sql, insert_params)
 
@@ -752,6 +860,34 @@ async def post_simulation_reserve(data:SimulationReserveCreateRequestBody)->Eart
             except Exception as e:
                 conn.rollback()
                 raise HTTPException(status_code=400, detail=f"Insert failed 2. {e}")
+            
+            # ファイル共有のS3バケットにシミュレーション予約IDのディレクトリを追加する
+            settings = get_settings()
+            simulation_reserve_s3_bucket = settings.simulation_reserve_s3_bucket
+            s3_client = boto3.client('s3', config=Config(signature_version='s3v4'))
+
+            response = s3_client.put_object(
+                Bucket = simulation_reserve_s3_bucket,
+                Key = f"{id_of_new_row}/"
+            )
+            if response['ResponseMetadata']['HTTPStatusCode'] != 200:
+                raise HTTPException(status_code=500, detail="シミュレーション予約のS3フォルダ作成処理でエラーが発生しました")
+
+            # 予約時に指定された、地震動プリセットファイル、地域プリセットで指定されたCityGMLファイルをコピー
+            citygml_preset_s3_bucket = settings.citygml_preset_s3_bucket
+            copy_all_keys_v2(
+              citygml_preset_s3_bucket,
+              f"{data.region_preset_id}/",
+              simulation_reserve_s3_bucket,
+              f"{id_of_new_row}/citygml/"
+            )
+            earthquake_preset_s3_bucket = settings.earthquake_preset_s3_bucket
+            copy_all_keys_v2(
+              earthquake_preset_s3_bucket,
+              f"{data.earthquake_preset_id}/",
+              simulation_reserve_s3_bucket,
+              f"{id_of_new_row}/earthquake/"
+            )
 
     return {
         "id": id_of_new_row,
@@ -902,6 +1038,49 @@ async def get_registered_citygmls(meshcode_list: str):
         "type": "FeatureCollection",
         "features": registered_citygmls
     }
+    
+@_app.get("/simulation_visualize/{id}", include_in_schema=True, tags=['simulation_visualize'])
+async def get_simulation_visualize(id: int, user_id: int = 0, jwt_token:str = Header()):
+    """
+    Cognitoログイン済みか否かチェックし、ログイン済みの場合は指定した可視化情報を取得する
+    """
+
+    ## ログイン状態か否かのチェック
+    result = verify_jwt(jwt_token)
+
+    if not result["success"]:
+        raise HTTPException(status_code=400, detail=result["error"])
+
+    payload = result["payload"]
+    if "email" not in payload:
+        raise HTTPException(status_code=401, detail="Email not found in payload")
+
+    ## ログイン状態の場合は可視化情報を返す
+    row = None
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            sql = """
+            SELECT
+            sr.id,
+            sr.visualize_url,
+            FROM simulation_reserves AS sr
+            WHERE sr.user_id = %s
+            AND sr.id = %s
+            """
+            try:
+                cur.execute(sql, (user_id, id,))
+                row = cur.fetchone()
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Select failed. {e}")
+    if row == None:
+        raise HTTPException(status_code=400, detail="No record.")
+
+    item = row
+    simulation_reserve = {
+        "id": item[0],
+        "visualize_url": item[1],
+    }
+    return simulation_reserve
 
 
 # app定義

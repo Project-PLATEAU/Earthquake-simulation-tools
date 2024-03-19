@@ -9,7 +9,7 @@ const db_datas = [
     "gmlfile_path": null,
     "mesh_codes": "ccccc,eeee",
     "additional_info": "eeee",
-    "create_date": "2023-12-22T15:00:00+00:00"
+    "create_date": "2023/12/22 15:00:00"
   },
   {
     "id": 4,
@@ -18,7 +18,7 @@ const db_datas = [
     "gmlfile_path": null,
     "mesh_codes": "bbbb",
     "additional_info": "dddd",
-    "create_date": "2023-12-27T19:54:30+00:00"
+    "create_date": "2023/12/27 19:54:30"
   },
   {
     "id": 5,
@@ -27,7 +27,7 @@ const db_datas = [
     "gmlfile_path": null,
     "mesh_codes": "bbbbbbbbb",
     "additional_info": "ccc",
-    "create_date": "2023-12-27T20:22:01+00:00"
+    "create_date": "2023/12/27 20:22:01"
   },
   {
     "id": 6,
@@ -36,7 +36,7 @@ const db_datas = [
     "gmlfile_path": null,
     "mesh_codes": "fadsfsda",
     "additional_info": "111321312",
-    "create_date": "2023-12-27T20:25:56+00:00"
+    "create_date": "2023/12/27 20:25:56"
   },
   {
     "id": 7,
@@ -45,7 +45,7 @@ const db_datas = [
     "gmlfile_path": null,
     "mesh_codes": "fadsfsda",
     "additional_info": "111321312",
-    "create_date": "2023-12-27T20:26:01+00:00"
+    "create_date": "2023/12/27 20:26:01"
   },
   {
     "id": 8,
@@ -54,7 +54,7 @@ const db_datas = [
     "gmlfile_path": null,
     "mesh_codes": "fadsfsda",
     "additional_info": "111321312",
-    "create_date": "2023-12-27T20:26:02+00:00"
+    "create_date": "2023/12/27 20:26:02"
   },
   {
     "id": 9,
@@ -63,7 +63,7 @@ const db_datas = [
     "gmlfile_path": null,
     "mesh_codes": "fadsfsda",
     "additional_info": "111321312",
-    "create_date": "2023-12-27T20:26:02+00:00"
+    "create_date": "2023/12/27 20:26:02"
   },
   {
     "id": 10,
@@ -72,7 +72,7 @@ const db_datas = [
     "gmlfile_path": null,
     "mesh_codes": "fadsfsda",
     "additional_info": "111321312",
-    "create_date": "2023-12-27T20:26:03+00:00"
+    "create_date": "2023/12/27 20:26:03"
   },
   {
     "id": 11,
@@ -81,7 +81,7 @@ const db_datas = [
     "gmlfile_path": null,
     "mesh_codes": "fadsfsda",
     "additional_info": "111321312",
-    "create_date": "2023-12-27T20:26:04+00:00"
+    "create_date": "2023/12/27 20:26:04"
   },
   {
     "id": 13,
@@ -90,7 +90,7 @@ const db_datas = [
     "gmlfile_path": null,
     "mesh_codes": "fadsfsda",
     "additional_info": "111321312",
-    "create_date": "2023-12-27T20:26:05+00:00"
+    "create_date": "2023/12/27 20:26:05"
   }
 ];
 

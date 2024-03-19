@@ -1,33 +1,33 @@
 <template>
-    <div class="m-10">
-        <div class="text-xl">地域プリセット一覧</div>
-        <div class="flex space-x-4 mt-4">
-          <button class="border bg-slate-200 p-1" @click="clickCreateAndEditPreset">地域（CityGML)の追加・編集</button>
-          <button class="border bg-slate-200 p-1" @click="clickDeletePreset">追加されたプリセットの削除</button>
-          <button class="border bg-slate-200 p-1" @click="clickUpdatePresetOption">付帯情報</button>
+    <div class="m-10 list-view">
+        <div class="text-xl font-bold">地域プリセット一覧</div>
+        <div class="flex space-x-4 mt-4 action-button-area">
+          <button class="basis-5/12 bg-transparent text-blue-500 rounded-md border border-solid border-blue-200 text-base py-[9px] px-[17px] hover:text-blue-400" @click="clickCreateAndEditPreset">地域（3D都市モデル）の追加・編集</button>
+          <button class="basis-5/12 bg-transparent text-blue-500 rounded-md border border-solid border-blue-200 text-base py-[9px] px-[17px] hover:text-blue-400" @click="clickDeletePreset">追加されたプリセットの削除</button>
+          <button class="basis-2/12 bg-transparent text-blue-500 rounded-md border border-solid border-blue-200 text-base py-[9px] px-[17px] hover:text-blue-400" @click="clickUpdatePresetOption">付帯情報</button>
         </div>
-        <div class="mt-4 w-full h-80">
-          <table class="border-slate-500 w-full table-fixed">
+        <div class="mt-4 w-full">
+          <table class="w-full table-fixed">
             <thead>
               <tr>
-                <th class="border-b-2 w-20"></th>
-                <th class="border-b-2">名称</th>
-                <th class="border-b-2 w-40">メッシュ数</th>
-                <th class="border-b-2 w-60">最終更新日時</th>
+                <th class="w-20 font-semibold text-base h-10 align-middle border-b-4 border-solid border-blue-200"></th>
+                <th class="text-left font-semibold text-base h-10 align-middle border-b-4 border-solid border-blue-200">名称</th>
+                <th class="w-40 font-semibold text-base h-10 align-middle border-b-4 border-solid border-blue-200">メッシュ数</th>
+                <th class="w-60 font-semibold text-base h-10 align-middle border-b-4 border-solid border-blue-200">最終更新日時</th>
               </tr>
             </thead>
             <tbody>
               <tr class="h-6" v-for="preset in presets">
-                <td class="border-b"><input type="checkbox" v-model="preset.chk"></td>
-                <td class="border-b">{{ preset.name }}</td>
-                <td class="border-b text-right">{{ preset.mesh_count }}</td>
-                <td class="border-b text-center">{{ preset.updated }}</td>
+                <td class="text-center h-12 border-b border-solid border-blue-200"><input type="checkbox" v-model="preset.chk"></td>
+                <td class="text-left h-12 border-b border-solid border-blue-200">{{ preset.name }}</td>
+                <td class="text-center h-12 border-b border-solid border-blue-200">{{ preset.mesh_count }}</td>
+                <td class="text-center h-12 border-b border-solid border-blue-200">{{ preset.updated }}</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <div class="mt-4">
-          <button class="border bg-slate-200 p-1" @click="clickReturn">戻る</button>
+        <div class="mt-4 text-center flex justify-center">
+          <button class="bg-blue-500 text-white text-xs h-8 leading-4 rounded-md px-4" @click="clickReturn">戻る</button>
         </div>
     </div>
 </template>

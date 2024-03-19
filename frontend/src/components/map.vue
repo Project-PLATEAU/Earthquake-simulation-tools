@@ -23,6 +23,9 @@ const clickedFeatures = [] as MapGeoJSONFeature[];
 
 let mapInstance: Map | null = null;
 
+// メッシュデータの保持
+let allMeshData: GeoJSON.FeatureCollection | undefined = undefined;
+
 const props = defineProps<{
   lat: number;
   lon: number;
@@ -82,16 +85,16 @@ onMounted(async () => {
     const topRight: LngLat = bounds.getNorthEast();
     const bottomLeft: LngLat = bounds.getSouthWest();
     // メッシュデータの取得
-    const meshData = await getRegisteredCitygmls({
+    allMeshData = (await getRegisteredCitygmls({
       upper_lon: topRight.lng,
       upper_lat: topRight.lat,
       lower_lon: bottomLeft.lng,
       lower_lat: bottomLeft.lat,
-    });
+    })) as unknown as GeoJSON.FeatureCollection;
 
     mapInstance.addSource("mesh", {
       type: "geojson",
-      data: meshData,
+      data: allMeshData,
     });
 
     mapInstance.addLayer({
@@ -128,9 +131,9 @@ onMounted(async () => {
           }
         });
 
-        console.log(features[0].properties.mesh_code);
+        //console.log(features[0].properties.mesh_code);
         meshCodeStore.removeMeshCode(features[0].properties.mesh_code);
-        console.log(meshCodeStore.meshCodeList);
+        //console.log(meshCodeStore.meshCodeList);
       } else {
         clickedFeatures.push(features[0]);
         meshCodeStore.setMeshCode(features[0].properties.mesh_code);
@@ -174,6 +177,26 @@ const onClickSubmit = () => {
   router.go(-1);
 };
 
+// 全選択ボタン押下時
+const onClickAllSelect = () => {
+  if (allMeshData && allMeshData.features) {
+    allMeshData.features.forEach((feature: GeoJSON.Feature) => {
+      clickedFeatures.push(feature as MapGeoJSONFeature);
+      meshCodeStore.setMeshCode(feature.properties?.mesh_code);
+    });
+    featureHighlight(allMeshData.features as MapGeoJSONFeature[]);
+    meshCodeStore.changeFlag = true;
+  }
+};
+
+// 全解除ボタン押下時
+const onClickAllSelectOff = () => {
+  meshCodeStore.initMeshCode();
+  clickedFeatures.splice(0, clickedFeatures.length);
+  featureHighlight([]);
+  meshCodeStore.changeFlag = true;
+};
+
 const featureHighlight = (features: MapGeoJSONFeature[]) => {
   if (!mapInstance) return;
 
@@ -211,8 +234,35 @@ const featureHighlight = (features: MapGeoJSONFeature[]) => {
   <div class="map-wrap">
     <div ref="mapContainer" class="map"></div>
   </div>
-  <div>
-    <button class="border bg-slate-200 p-1" @click="onClickSubmit">決定</button>
+
+  <div class="flex">
+    <div class="m-5">
+      <button
+        class="bg-blue-500 text-white text-xs h-8 leading-4 rounded-md pr-5 pl-5"
+        aria-label="決定ボタン"
+        @click="onClickSubmit"
+      >
+        決定
+      </button>
+    </div>
+    <div class="m-5 ml-0">
+      <button
+        class="bg-blue-500 text-white text-xs h-8 leading-4 rounded-md pr-5 pl-5"
+        aria-label="全選択ボタン"
+        @click="onClickAllSelect"
+      >
+        全選択
+      </button>
+    </div>
+    <div class="m-5 ml-0">
+      <button
+        class="bg-blue-500 text-white text-xs h-8 leading-4 rounded-md pr-5 pl-5"
+        aria-label="全解除ボタン"
+        @click="onClickAllSelectOff"
+      >
+        全解除
+      </button>
+    </div>
   </div>
 </template>
 
