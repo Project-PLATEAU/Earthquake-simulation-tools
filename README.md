@@ -1,7 +1,7 @@
 # 建物振動シミュレーションシステム
 
 
-![img1](https://project-plateau.github.io/Earthquake-simulation-tools/resources/index_img1.png)
+![img1](https://raw.githubusercontent.com/Project-PLATEAU/Earthquake-simulation-tools/gh-pages/resources/index_img1.png?token=GHSAT0AAAAAACQDQI2AMP3DDXD3J6GVLFBUZQEGPTA)
 
 ## 1. 概要
 
