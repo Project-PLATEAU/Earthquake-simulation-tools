@@ -1,0 +1,35 @@
+import { simulationReserve } from '$lib/client';
+import { unixTimestampToString } from '$lib/utils/common';
+import { getSimulationStatusName, SimulationType } from '$lib/utils/getName';
+import type { SimulationReserve } from '$lib/types';
+
+export const load = async () => {
+	try {
+		const simulationReserves: SimulationReserve[] = await simulationReserve.getByUserType(
+			'us-east-1:12345678-1234-1234-1234-123456789012',
+			SimulationType.Wide
+		);
+
+		console.log('Fetched simulation reserves:', simulationReserves);
+
+		const simulationReserveList = await Promise.all(
+			simulationReserves.map(async (item: SimulationReserve) => {
+				const statusName = await getSimulationStatusName(item.status);
+				return {
+					id: item.id,
+					regionName: item.regionName,
+					paramName: item.paramName,
+					status: statusName,
+					createDateTime: unixTimestampToString(item.createDateTime)
+				};
+			})
+		);
+		return {
+			simulationReserveList: simulationReserveList // コンポーネントに渡すデータ
+		};
+	} catch {
+		return {
+			simulationReserveList: []
+		};
+	}
+};
