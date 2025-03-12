@@ -1,6 +1,7 @@
 import { preprocessMeltUI, sequence } from '@melt-ui/pp';
 import adapter from '@sveltejs/adapter-node';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+import path from 'path';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -17,7 +18,8 @@ const config = {
 		}),
 		alias: {
 			$types: './src/types',
-			'$types/*': './src/types/*'
+			'$types/*': './src/types/*',
+			$lib: path.resolve('./src/lib')
 		},
 		csrf: {
 			checkOrigin: false,

@@ -1,5 +1,5 @@
 import * as R from 'ramda';
-import type { PresetInfo } from '$lib/types';
+import type { PresetInfo } from '../types';
 import { DeleteCommand, PutCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { getClient } from './dynamodb';
 import {
@@ -59,6 +59,43 @@ const getByUserTypeJob = async (
 	const data = await docClient.send(command);
 	const presetInfos = _makePresetInfos(data);
 	return presetInfos;
+};
+
+// DynamoDBからメッシュコードを取得する関数 (名前で取得)
+const getMeshcodeByPresetName = async (
+	userID: string,
+	typeId: string,
+	jobId: string,
+	presetName: string
+): Promise<string[] | null> => {
+	console.log('getMeshcodeByPresetName', userID);
+
+	const client = getClient();
+	const docClient = DynamoDBDocumentClient.from(client);
+	const params = {
+		TableName: 'preset_info',
+		FilterExpression:
+			'#userId = :userIdValue AND #type = :typeIdValue AND #job = :jobValue AND #presetName = :presetNameValue',
+		ExpressionAttributeNames: {
+			'#userId': 'userId', // フィルタリングする非キー項目
+			'#type': 'type', // フィルタリングする非キー項目
+			'#job': 'job', // フィルタリングする非キー項目
+			'#presetName': 'presetName' // フィルタリングする非キー項目
+		},
+		ExpressionAttributeValues: {
+			':userIdValue': userID,
+			':typeIdValue': typeId,
+			':jobValue': jobId,
+			':presetNameValue': presetName
+		},
+		ConsistentRead: true
+	};
+
+	// meshcodeを取得するためにScanを使う
+	const command = new ScanCommand(params);
+	const data = await docClient.send(command);
+	const presetInfos = _makePresetInfos(data);
+	return presetInfos.length > 0 ? presetInfos[0].meshCode : null;
 };
 
 // DynamoDBにデータを追加する汎用関数
@@ -211,6 +248,7 @@ const _makePresetInfos = (data: ScanCommandOutput): PresetInfo[] => {
 export {
 	getById,
 	getByUserTypeJob,
+	getMeshcodeByPresetName,
 	putPresetInfo,
 	deleteByRegionNameTypeJob as deleteByRegionName,
 	deleteById,

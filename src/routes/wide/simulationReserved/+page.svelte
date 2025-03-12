@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { goto, invalidate } from '$app/navigation';
+	import { goto } from '$app/navigation';
 	import Button from '$lib/components/ui/Button.svelte';
 	import Select from '$lib/components/ui/Select.svelte';
 	import type { PageData } from './$types';
@@ -31,6 +31,13 @@
 
 	const addSimulationBooking = async () => {
 		if (!regionName || !presetName) {
+			addToast({
+				data: {
+					title: 'Error',
+					description: '地域と地震動データを選択してください',
+					color: 'error'
+				}
+			});
 			return;
 		}
 		isOverlay = true;
@@ -47,34 +54,47 @@
 
 		try {
 			const result = await response.json();
-			if (result.type != 'success') {
+			if (result.type !== 'success') {
 				throw new Error(result.error || 'Unknown error occurred');
 			} else {
+				addToast({
+					data: {
+						title: 'Success',
+						description: 'シミュレーション予約が完了しました',
+						color: 'success'
+					}
+				});
 				await goto('simulationReservedList');
 			}
 		} catch (error) {
-			if (error instanceof Error) {
-				console.error('Error processing response:', error.message);
-			} else {
-				console.error('Error processing response:', error);
-			}
+			addToast({
+				data: {
+					title: 'Error',
+					description: error instanceof Error ? error.message : '予約処理に失敗しました',
+					color: 'error'
+				}
+			});
+			console.error('Error processing response:', error);
+		} finally {
+			isOverlay = false;
 		}
-
-		// 必要に応じてページのデータを再取得
-		await invalidate('/current-page-url');
-		isOverlay = false;
-		addToast({
-			data: {
-				title: 'Success',
-				description: 'シミュレーション予約が完了しました',
-				color: 'success'
-			}
-		});
 	};
 
 	const handlePath = async (path: string) => {
 		isOverlay = true;
 		await goto(path);
+	};
+
+	// DPPファイルで使われるタイルID表示用の説明を追加
+	const getRegionDescription = (regionName: string) => {
+		if (!regionName) return '';
+
+		// タイルIDとして表示
+		const tiles = regionName.split(',').map((t) => t.trim());
+		if (tiles.length > 1) {
+			return `タイルID: ${tiles[0]}... (${tiles.length}個のタイル)`;
+		}
+		return `タイルID: ${regionName}`;
 	};
 </script>
 
@@ -86,6 +106,7 @@
 	<p>以下の内容でシミュレーションを実行します。よろしいですか？</p>
 	<div class="min-w-96 bg-gray-300 p-10">
 		<p>地域：{regionName}</p>
+		<p class="text-sm text-gray-600">{getRegionDescription(regionName)}</p>
 		<p>地震動データ：{presetName}</p>
 	</div>
 	<div class="flex gap-4">

@@ -20,10 +20,15 @@ export const load = async () => {
 					regionName: item.regionName,
 					paramName: item.paramName,
 					status: statusName,
-					createDateTime: unixTimestampToString(item.createDateTime)
+					createDateTime: unixTimestampToString(item.createDateTime),
+					rawCreateDateTime: item.createDateTime // ソート用に元のタイムスタンプを保存
 				};
 			})
 		);
+
+		// 日付の新しい順（降順）に並べ替え
+		simulationReserveList.sort((a, b) => b.rawCreateDateTime - a.rawCreateDateTime);
+
 		return {
 			simulationReserveList: simulationReserveList // コンポーネントに渡すデータ
 		};

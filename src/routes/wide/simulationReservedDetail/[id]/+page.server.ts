@@ -1,5 +1,5 @@
 import { getById as getSimulationById } from '$lib/client/simulationReserve';
-import type { SimulationReserve } from '$lib/types';
+import type { SimulationReserve } from '$lib/types/index';
 
 export const load = async ({ params }) => {
 	try {

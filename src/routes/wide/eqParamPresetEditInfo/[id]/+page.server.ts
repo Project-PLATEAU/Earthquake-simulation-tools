@@ -1,5 +1,6 @@
 import { getById, updateMultipleFields } from '$lib/client/presetInfo';
 import { redirect } from '@sveltejs/kit';
+import { getPresignedUrl } from '$lib/utils/s3.js';
 
 export const load = async ({ params }) => {
 	try {
@@ -24,5 +25,10 @@ export const actions = {
 
 		await updateMultipleFields(idValue as string, values);
 		throw redirect(303, `/wide/eqParamPresetEditInfo/${idValue}`);
+	},
+	getPresignedUrl: async ({ request }) => {
+		const { filename } = await request.json();
+		const url = await getPresignedUrl(filename);
+		return { url };
 	}
 };

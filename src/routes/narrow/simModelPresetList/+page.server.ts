@@ -11,6 +11,9 @@ export const load = async () => {
 			JobType.Analysis_model
 		);
 
+		// 日付の新しい順に並べ替え（createDateTimeの降順ソート）
+		presetInfos.sort((a, b) => b.createDateTime - a.createDateTime);
+
 		type TransformedPreset = {
 			checked: boolean;
 			id: string;

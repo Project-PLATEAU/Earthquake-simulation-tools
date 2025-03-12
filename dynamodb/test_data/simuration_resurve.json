@@ -9,7 +9,8 @@
                     "regionName": { "S": "静岡市" },
                     "paramName": { "S": "地震動プリセット" },
                     "status": { "S": "1" },
-                    "createDateTime": { "N": "1633024800" }
+                    "createDateTime": { "N": "1633024800" },
+                    "outputDir": { "S": "/output/simulations/123e4567-e89b-12d3-a456-426614174000" }
                 }
             }
         },
@@ -22,7 +23,8 @@
                     "regionName": { "S": "静岡市の建物" },
                     "paramName": { "S": "プリセットデータ" },
                     "status": { "S": "1" },
-                    "createDateTime": { "N": "1633024801" }
+                    "createDateTime": { "N": "1633024801" },
+                    "outputDir": { "S": "/output/simulations/123e4567-e89b-12d3-a456-426614174001" }
                 }
             }
         }

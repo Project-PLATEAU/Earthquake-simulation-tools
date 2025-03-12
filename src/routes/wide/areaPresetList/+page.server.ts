@@ -56,8 +56,11 @@ const getPresetInfos = async () => {
 			>
 		);
 
-		// 結果をリスト化
-		const presetInfoList = Object.values(groupedByRegion);
+		// 結果をリスト化し、日付の新しい順（降順）でソート
+		const presetInfoList = Object.values(groupedByRegion).sort((a, b) =>
+			b.createDateTime.localeCompare(a.createDateTime)
+		);
+
 		return {
 			presetInfos: presetInfoList // コンポーネントに渡すデータ
 		};

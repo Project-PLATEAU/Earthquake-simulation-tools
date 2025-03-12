@@ -53,6 +53,12 @@ const getPresetInfos = async () => {
 
 		// 結果をリスト化
 		const presetInfoList = Object.values(groupedByRegion);
+
+		// 日付の新しい順に並べ替え
+		presetInfoList.sort((a, b) => {
+			return a.createDateTime > b.createDateTime ? -1 : 1;
+		});
+
 		return {
 			presetInfos: presetInfoList // コンポーネントに渡すデータ
 		};

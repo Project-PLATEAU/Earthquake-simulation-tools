@@ -5,6 +5,7 @@
 	import PresetInfoCard from '$lib/components/PresetInfoCard.svelte';
 	import { unixTimestampToString } from '$lib/utils/common';
 	import Overlay from '$lib/components/Overlay.svelte';
+	import type { SimulationReserve } from '$lib/types';
 
 	interface Props {
 		data: PageData;
@@ -17,6 +18,29 @@
 	const handlePath = async (path: string) => {
 		isOverlay = true;
 		await goto(path);
+	};
+
+	// シミュレーションオブジェクトを単一変数として定義
+	const simulation = data.simulationReserve as SimulationReserve | null;
+
+	console.log(simulation);
+
+	// ログURLの存在をチェックするアロー関数
+	const hasLogUrl = () => {
+		return Boolean(simulation?.apiResponse?.log_url) || Boolean(simulation?.logUrl);
+	};
+
+	// ログURLを取得するアロー関数
+	const getLogUrl = () => {
+		return simulation?.apiResponse?.log_url || simulation?.logUrl || '';
+	};
+
+	// ログURLを開くアロー関数
+	const openLogUrl = () => {
+		const url = getLogUrl();
+		if (url) {
+			window.open(url, '_blank');
+		}
 	};
 </script>
 
@@ -54,5 +78,41 @@
 				<Button onclick={() => handlePath('../simulationReservedList')}>戻る</Button>
 			</div>
 		</div>
+
+		<!-- シミュレーション情報セクション -->
+		<div class="mt-10 flex flex-col items-center">
+			<!-- ログURLボタン -->
+			{#if hasLogUrl()}
+				<div class="log-url-container w-full max-w-2xl">
+					<h3 class="mb-3 text-xl font-semibold">シミュレーションログ</h3>
+					<button class="log-url-button" onclick={openLogUrl}>ログを表示する</button>
+				</div>
+			{/if}
+		</div>
 	</div>
 {/if}
+
+<style>
+	.log-url-container {
+		margin-top: 20px;
+		padding: 15px;
+		border: 1px solid #eee;
+		border-radius: 8px;
+		background-color: #f9f9f9;
+	}
+
+	.log-url-button {
+		background-color: #4285f4;
+		color: white;
+		padding: 8px 16px;
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+		font-size: 14px;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	}
+
+	.log-url-button:hover {
+		background-color: #3367d6;
+	}
+</style>

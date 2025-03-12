@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import Button from '$lib/components/ui/Button.svelte';
 	import PresetEditInfo from '$lib/components/PresetEditInfo.svelte';
-	import type { PresetInfo } from '$lib/types';
+	import type { PresetInfo } from '$lib/types/index';
 	import { submitDynamicForm } from '$lib/utils/common.js';
 	import Overlay from '$lib/components/Overlay.svelte';
 	let isOverlay = $state(false);

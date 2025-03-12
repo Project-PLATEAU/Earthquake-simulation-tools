@@ -42,84 +42,59 @@
 
 	let chartType = $state<'pie' | 'bar'>('bar'); // デフォルトを棒グラフに設定
 
+	const generateChart = (data: DataType, chartContainer: HTMLCanvasElement, maxData: number) => {
+		const context = chartContainer.getContext('2d');
+		if (context === null) return null;
+		const colorParam = getColorAndName(data);
+		const chart = new Chart(context, {
+			type: chartType,
+			data: {
+				labels: colorParam.names,
+				datasets: [
+					{
+						data: Object.values(data),
+						backgroundColor: colorParam.colors.map(
+							(color) => `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.5)`
+						),
+						borderColor: colorParam.colors.map(
+							(color) => `rgba(${color[0]}, ${color[1]}, ${color[2]}, 1)`
+						),
+						borderWidth: 1
+					}
+				]
+			},
+			options: {
+				responsive: true,
+				plugins: {
+					legend: {
+						position: chartType === 'pie' ? 'top' : 'bottom',
+						display: chartType === 'pie'
+					}
+				},
+				scales: {
+					y: {
+						display: chartType === 'bar',
+						min: 0,
+						max: Math.ceil((maxData * 1.1 + 1) / 10) * 10 // 最大値を10の倍数にする
+					}
+				}
+			}
+		});
+		return chart;
+	};
+
 	const updateCharts = () => {
-		if (data1 && data2) {
-			if (chart1) chart1.destroy();
-			if (chart2) chart2.destroy();
-
-			const context1 = chartContainer1.getContext('2d');
-			if (context1) {
-				const colorParam1 = getColorAndName(data1);
-				chart1 = new Chart(context1, {
-					type: chartType,
-					data: {
-						labels: colorParam1.names,
-						datasets: [
-							{
-								data: Object.values(data1),
-								backgroundColor: colorParam1.colors.map(
-									(color) => `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.5)`
-								),
-								borderColor: colorParam1.colors.map(
-									(color) => `rgba(${color[0]}, ${color[1]}, ${color[2]}, 1)`
-								),
-								borderWidth: 1
-							}
-						]
-					},
-					options: {
-						responsive: true,
-						plugins: {
-							legend: {
-								position: chartType === 'pie' ? 'top' : 'bottom',
-								display: chartType === 'pie'
-							}
-						},
-						scales: {
-							y: {
-								display: chartType === 'bar'
-							}
-						}
-					}
-				});
-			}
-
-			const context2 = chartContainer2.getContext('2d');
-			if (context2) {
-				const colorParam2 = getColorAndName(data2);
-				chart2 = new Chart(context2, {
-					type: chartType,
-					data: {
-						labels: colorParam2.names,
-						datasets: [
-							{
-								data: Object.values(data2),
-								backgroundColor: colorParam2.colors.map(
-									(color) => `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.5)`
-								),
-								borderColor: colorParam2.colors.map(
-									(color) => `rgba(${color[0]}, ${color[1]}, ${color[2]}, 1)`
-								),
-								borderWidth: 1
-							}
-						]
-					},
-					options: {
-						responsive: true,
-						plugins: {
-							legend: {
-								position: chartType === 'pie' ? 'top' : 'bottom',
-								display: chartType === 'pie'
-							}
-						},
-						scales: {
-							y: {
-								display: chartType === 'bar'
-							}
-						}
-					}
-				});
-			}
+		if (chart1) chart1.destroy();
+		if (chart2) chart2.destroy();
+		const maxData = Math.max(
+			0,
+			...Object.values(data1 ?? []).concat(Object.values(data2 ?? []))
+		);
+		if (data1) {
+			chart1 = generateChart(data1, chartContainer1, maxData);
+		}
+		if (data2) {
+			chart2 = generateChart(data2, chartContainer2, maxData);
 		}
 	};
 
@@ -149,14 +124,20 @@
 			// データとタイトルの更新を確実に行う
 			currentTitle = $leftData.title;
 			data1 = convertToChartData($leftData);
-
-			if ($rightData) {
-				previousTitle = $rightData.title;
-				data2 = convertToChartData($rightData);
-			}
-
-			updateCharts();
+		} else {
+			currentTitle = '';
+			data1 = null;
 		}
+
+		if ($rightData) {
+			previousTitle = $rightData.title;
+			data2 = convertToChartData($rightData);
+		} else {
+			previousTitle = '';
+			data2 = null;
+		}
+
+		updateCharts();
 	});
 
 	// クリア機能の追加

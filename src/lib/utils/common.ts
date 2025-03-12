@@ -1,7 +1,7 @@
 import * as R from 'ramda';
 import { getSimulationStatusName } from './getName';
 import type { UpdateCommandInput } from '@aws-sdk/lib-dynamodb';
-import type { AnyRecord } from '$lib/types';
+import type { AnyRecord } from '$lib/types/index';
 
 // Result 型の定義
 /**

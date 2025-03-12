@@ -1,3 +1,5 @@
+import type { SimulationApiResponse } from '$lib/client/simulationApi';
+
 type PresetInfo = {
 	id: string;
 	userId: string;
@@ -26,6 +28,20 @@ type SimulationReserve = {
 	paramName: string;
 	status: string;
 	createDateTime: number;
+	updatedDateTime?: number;
+	uuid?: string; // API応答のUUID
+	outputPath?: string; // シミュレーション結果の出力パス
+	dppPath?: string; // DPPファイルの保存パス
+	csvPath?: string; // CSVファイルの保存パス
+	jobId?: string; // 互換性のためのジョブID
+	logUrl?: string; // APIログURL
+	apiResponse?: SimulationApiResponse;
+	lastUpdated?: number; // 最終更新時刻
+	executionStartTime?: number;
+	completionTime?: number;
+	failedTime?: number;
+	error?: string;
+	outputDir?: string;
 };
 
 type AnyRecord<T> = Record<string, T>;

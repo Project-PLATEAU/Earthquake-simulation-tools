@@ -29,42 +29,74 @@ lint: ## リントを実行
 	npx eslint src
 
 STACK_DIR := ./cdk/backend-stack
-
 svelte_build: ## Svelteのビルド
 	pnpm install
 	pnpm build
 
-cdk_synth: ## CDKを利用して差分表示
-	export AWS_ACCESS_KEY_ID==$(AWS_ACCESS_KEY_ID)
+cdk_synth_backend: ## CDKを利用して差分表示
+	export AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)
 	export AWS_DEFAULT_REGION=$(AWS_DEFAULT_REGION)
 	cd $(STACK_DIR) && pnpm build && npx cdk synth  --context env=development > stack_out.yaml
 
-cdk_diff: svelte_build cdk_synth ## CDKを利用して差分表示
-	export AWS_ACCESS_KEY_ID==$(AWS_ACCESS_KEY_ID)
+cdk_diff_backend: svelte_build cdk_synth_backend ## CDKを利用して差分表示
+	export AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)
 	export AWS_DEFAULT_REGION=$(AWS_DEFAULT_REGION)
 	cd $(STACK_DIR) && npx cdk diff -v --context stage=develop
 
-cdk_deploy: cdk_diff ## CDKを利用してAWSのアカウントにデプロイ
-	export AWS_ACCESS_KEY_ID==$(AWS_ACCESS_KEY_ID)
+cdk_deploy_backend: cdk_diff_backend ## CDKを利用してAWSのアカウントにデプロイ
+	export AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)
 	export AWS_DEFAULT_REGION=$(AWS_DEFAULT_REGION)
 	cd $(STACK_DIR) && npx cdk deploy --require-approval never --context env=development
 
-WALLSTAT_STACK_DIR := ./cdk/wallstat-batch-stack
-
-cdk_synth_w: ## CDKを利用して差分表示
-	export AWS_ACCESS_KEY_ID==$(AWS_ACCESS_KEY_ID)
-	export AWS_DEFAULT_REGION=$(AWS_DEFAULT_REGION)
-	cd $(WALLSTAT_STACK_DIR) && pnpm build && npx cdk synth  --context env=development > stack_out.yaml
-
-cdk_diff_w: cdk_synth ## CDKを利用して差分表示
+PLATFORM-STACK_DIR := ./cdk/platform-stack
+cdk_synth_platform: ## CDKを利用して差分表示
 	export AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)
 	export AWS_DEFAULT_REGION=$(AWS_DEFAULT_REGION)
-	cd $(WALLSTAT_STACK_DIR) && npx cdk diff -v --context stage=develop
+	cd $(PLATFORM-STACK_DIR) && pnpm build && npx cdk synth  --context env=development > stack_out.yaml
 
-cdk_deploy_w: cdk_diff ## CDKを利用してAWSのアカウントにデプロイ
+cdk_diff_platform: cdk_synth_platform ## CDKを利用して差分表示
 	export AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)
 	export AWS_DEFAULT_REGION=$(AWS_DEFAULT_REGION)
-	cd $(WALLSTAT_STACK_DIR) && npx cdk deploy --require-approval never --context env=development
+	cd $(PLATFORM-STACK_DIR) && npx cdk diff -v --context stage=develop
+
+cdk_deploy_platform: cdk_diff_platform ## CDKを利用してAWSのアカウントにデプロイ
+	export AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)
+	export AWS_DEFAULT_REGION=$(AWS_DEFAULT_REGION)
+	cd $(PLATFORM-STACK_DIR) && npx cdk deploy --require-approval never --context env=development
+
+
+NARROWSIM_STACK_DIR := ./cdk/narrowsim-batch-stack
+cdk_synth_narrow: ## CDKを利用して差分表示
+	export AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)
+	export AWS_DEFAULT_REGION=$(AWS_DEFAULT_REGION)
+	cd $(NARROWSIM_STACK_DIR) && pnpm build && npx cdk synth  --context env=development > stack_out.yaml
+
+cdk_diff_narrow: cdk_synth_narrow ## CDKを利用して差分表示
+	export AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)
+	export AWS_DEFAULT_REGION=$(AWS_DEFAULT_REGION)
+	cd $(NARROWSIM_STACK_DIR) && npx cdk diff -v --context stage=develop
+
+cdk_deploy_narrow: cdk_diff_narrow ## CDKを利用してAWSのアカウントにデプロイ
+	export AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)
+	export AWS_DEFAULT_REGION=$(AWS_DEFAULT_REGION)
+	cd $(NARROWSIM_STACK_DIR) && npx cdk deploy --require-approval never --context env=development
+
+WIDESIM_STACK_DIR := ./cdk/widesim-batch-stack
+cdk_synth_wide: ## CDKを利用して差分表示
+	export AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)
+	export AWS_DEFAULT_REGION=$(AWS_DEFAULT_REGION)
+	cd $(WIDESIM_STACK_DIR) && pnpm build && npx cdk synth  --context env=development > stack_out.yaml
+
+cdk_diff_wide: cdk_synth_wide ## CDKを利用して差分表示
+	export AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)
+	export AWS_DEFAULT_REGION=$(AWS_DEFAULT_REGION)
+	cd $(WIDESIM_STACK_DIR) && npx cdk diff -v --context stage=develop
+
+cdk_deploy_wide: cdk_diff_wide ## CDKを利用してAWSのアカウントにデプロイ
+	export AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)
+	export AWS_DEFAULT_REGION=$(AWS_DEFAULT_REGION)
+	cd $(WIDESIM_STACK_DIR) && npx cdk deploy --require-approval never --context env=development
+
 
 logs:
 	docker logs -f mosiri-sveltekit-1

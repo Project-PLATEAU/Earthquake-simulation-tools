@@ -16,16 +16,21 @@ export const load = async () => {
 			id: string;
 			name: string;
 			lastUpdatedDatetime: string;
+			rawDateTime: number; // ソート用に元の数値も保持
 		};
 
 		const transformPreset = (presetData: PresetInfo): TransformedPreset => ({
 			checked: false,
 			id: presetData.id,
 			name: presetData.presetName,
-			lastUpdatedDatetime: unixTimestampToString(presetData.createDateTime)
+			lastUpdatedDatetime: unixTimestampToString(presetData.createDateTime),
+			rawDateTime: presetData.createDateTime
 		});
 
-		const presetInfoList = presetInfos.map(transformPreset);
+		const presetInfoList = presetInfos
+			.map(transformPreset)
+			// 日付の新しい順（降順）にソート
+			.sort((a, b) => b.rawDateTime - a.rawDateTime);
 
 		return {
 			presetInfos: presetInfoList // コンポーネントに渡すデータ

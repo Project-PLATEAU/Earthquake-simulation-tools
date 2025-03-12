@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { MapLibre, NavigationControl, VectorTileSource, FillLayer } from 'svelte-maplibre-gl';
 	import { DeckGLOverlay } from 'svelte-maplibre-gl/deckgl';
+	import { PMTilesProtocol } from 'svelte-maplibre-gl/pmtiles';
+	import { TerraDraw } from 'svelte-maplibre-gl/terradraw';
+	import type { TerraDraw as Draw } from 'terra-draw';
 	import type { PageData } from './$types';
 	import 'maplibre-gl/dist/maplibre-gl.css';
 	import type { StyleSpecification } from 'maplibre-gl';
@@ -25,7 +28,6 @@
 		leftData,
 		rightData
 	} from '$lib/viewer/store/CompareStore';
-	import { MaplibreTerradrawControl } from '@watergis/maplibre-gl-terradraw';
 	import '@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css';
 	import { getParam } from '$lib/viewer/utils/DeckLayerFactory';
 	import { getIdByDataTitle } from '$lib/viewer/LayerFilter/menu';
@@ -33,10 +35,9 @@
 	import { Layer } from '@deck.gl/core';
 	import { polygon, intersect, featureCollection } from '@turf/turf';
 	import LoadingModal from '$lib/viewer/components/LoadingModal.svelte';
-
 	import Legend from '$lib/viewer/components/MapPanel/Legend/Legend.svelte';
-
-	import { PMTilesProtocol } from 'svelte-maplibre-gl/pmtiles';
+	import { TerraDrawPolygonMode, TerraDrawRenderMode, TerraDrawSelectMode } from 'terra-draw';
+	import ModeControl from '$lib/viewer/components/MapPanel/ModeControl/ModeControl.svelte';
 
 	interface Props {
 		data: PageData;
@@ -128,32 +129,31 @@
 		};
 	};
 
-	const getFeaturesInBoundingBox = (
-		layers: any[],
+	// 変更: 非同期処理に対応するため、getFeaturesInBoundingBox を async 関数に変更
+	const getFeaturesInBoundingBox = async (
 		layerId: string,
 		boundingBox: { left: number; right: number; top: number; bottom: number }
 	) => {
-		const { left, right, top, bottom } = boundingBox;
+		return new Promise<any[]>((resolve) => {
+			const { left, right, top, bottom } = boundingBox;
 
-		const features: any[] =
-			$deckOverlay?.pickObjects({
-				x: left,
-				y: top,
-				width: Math.abs(left - right),
-				height: Math.abs(bottom - top),
-				layerIds: [layerId]
-			}) ?? [];
+			const features: any[] =
+				$deckOverlay?.pickObjects({
+					x: left,
+					y: top,
+					width: Math.abs(left - right),
+					height: Math.abs(bottom - top),
+					layerIds: [layerId]
+				}) ?? [];
 
-		return features;
+			resolve(features);
+		});
 	};
 
-	const makeGraphData = (features: any[]) => {
+	const makeGraphData = (features: any[]): { data: number[]; title: string } => {
 		console.log('test:', features);
-		$rightData = $leftData !== null ? { ...$leftData } : null;
 		const damege_list = features.map((d) => getParam(d.object));
-		$leftData = { data: damege_list, title: '' };
-		console.log($leftData);
-		console.log($rightData);
+		return { data: damege_list, title: '' };
 	};
 
 	const makeGraphDataFromDistrict = (features: any[]) => {
@@ -260,10 +260,42 @@
 	const deckLayers = [...dcklayer, ...tmplayer];
 
 	let isTemporalDisplacementVisible = $state(false);
-	const drawControl = new MaplibreTerradrawControl({
-		modes: ['polygon', 'select', 'delete-selection', 'delete'],
-		open: true
-	});
+
+	const defaultSelectFlags = {
+		feature: {
+			draggable: true,
+			coordinates: {
+				deletable: true,
+				midpoints: true,
+				draggable: true
+			}
+		}
+	};
+
+	let polygonIds: Array<string | number | undefined> = $state([]);
+	const idToColor = (id: string | number | undefined) => {
+		const index = polygonIds.indexOf(id);
+		return index === 1 ? '#00FF00' : '#FF0000';
+	};
+
+	let draw: Draw | undefined = $state.raw();
+	const modes = [
+		new TerraDrawSelectMode({ flags: { polygon: defaultSelectFlags } }),
+		new TerraDrawPolygonMode({
+			styles: {
+				fillColor: (feature) => idToColor(feature.id),
+				fillOpacity: 0.7,
+				outlineColor: (feature) => idToColor(feature.id),
+				outlineWidth: 2,
+				closingPointColor: (feature) => idToColor(feature.id),
+				closingPointWidth: 1,
+				closingPointOutlineColor: (feature) => idToColor(feature.id),
+				closingPointOutlineWidth: 3
+			}
+		}),
+		new TerraDrawRenderMode({ modeName: 'render', styles: {} })
+	];
+	let mode = $state('render');
 
 	const separateLayers = (layers: LayerConfig[]) => {
 		const pmtilesLayers = layers.filter((layer) => layer.type === 'pmtiles');
@@ -276,6 +308,51 @@
 		selectedLegendLayerIds = [];
 	};
 
+	$effect(() => {
+		(async () => {
+			const [id1, id2] = polygonIds;
+			$leftData = id1 ? await updateGraphData(id1) : null;
+			$rightData = id2 ? await updateGraphData(id2) : null;
+		})();
+	});
+
+	const updateGraphData = async (
+		id: string | number
+	): Promise<{ data: number[]; title: string }> => {
+		const snapshot = draw?.getSnapshot();
+		const features = snapshot?.find((feature) => feature.id === id);
+		const coordinates = Array.isArray(features?.geometry.coordinates[0])
+			? (features?.geometry.coordinates[0] as [number, number][]).map((coordinate) => [
+					$map?.project(coordinate).x,
+					$map?.project(coordinate).y
+				])
+			: [];
+		// x列目とy列目を抽出
+		const x = coordinates.map((row) => row[0]);
+		const y = coordinates.map((row) => row[1]);
+
+		// 四隅を計算
+		const left = Math.min(...x.filter((value) => value !== undefined));
+		const right = Math.max(...x.filter((value) => value !== undefined));
+		const bottom = Math.min(...y.filter((value) => value !== undefined));
+		const top = Math.max(...y.filter((value) => value !== undefined));
+		const featureData = await getFeaturesInBoundingBox('building_damage', {
+			left: left,
+			right: right,
+			top: top,
+			bottom: bottom
+		});
+		return makeGraphData(featureData);
+	};
+
+	const onFinish = (id: string | number) => {
+		const removeId = polygonIds.at(1);
+		if (removeId) {
+			draw?.removeFeatures([removeId]);
+		}
+		polygonIds = [id, polygonIds[0]];
+	};
+
 	onMount(async () => {
 		await $map?.once('load');
 
@@ -284,42 +361,6 @@
 			layers: []
 		});
 		$map?.addControl($deckOverlay);
-		$map?.addControl(drawControl, 'top-left');
-		const drawInstance = drawControl.getTerraDrawInstance();
-
-		if (drawInstance) {
-			// You can add event listener to subscribe Terra Draw event as you wish.
-			// The below example is to subscribe 'select' event of Terra Draw.
-
-			drawInstance.on('finish', (id) => {
-				const snapshot = drawInstance.getSnapshot();
-				const features = snapshot?.find((feature) => feature.id === id);
-				const coordinates = Array.isArray(features?.geometry.coordinates[0])
-					? (features?.geometry.coordinates[0] as [number, number][]).map(
-							(coordinate) => [
-								$map?.project(coordinate).x,
-								$map?.project(coordinate).y
-							]
-						)
-					: [];
-				// x列目とy列目を抽出
-				const x = coordinates.map((row) => row[0]);
-				const y = coordinates.map((row) => row[1]);
-
-				// 四隅を計算
-				const left = Math.min(...x.filter((value) => value !== undefined));
-				const right = Math.max(...x.filter((value) => value !== undefined));
-				const bottom = Math.min(...y.filter((value) => value !== undefined));
-				const top = Math.max(...y.filter((value) => value !== undefined));
-				const featureData = getFeaturesInBoundingBox(deckLayers, 'building_damage', {
-					left: left,
-					right: right,
-					top: top,
-					bottom: bottom
-				});
-				makeGraphData(featureData);
-			});
-		}
 	});
 
 	$effect(() => {
@@ -435,8 +476,34 @@
 			{#if selectedLayerConfig.some((layer) => layer.type === 'mvt_emergency_road')}
 				<div class="mt-10">
 					<p class="text-xs">緊急輸送道路バッファ</p>
-					<input type="number" bind:value={emergencyRoadBuffer} class="w-20 border p-1" />
-					m
+					<div class="flex items-center gap-2">
+						<input
+							type="number"
+							bind:value={emergencyRoadBuffer}
+							class="w-20 border p-1"
+						/>
+						<span class="mr-2">m</span>
+						<button
+							class="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-600"
+							onclick={async () => {
+								isLoading = true;
+								// ...existing code: waiting for map canvas size update if necessary...
+								const features = await getFeaturesInBoundingBox('building_damage', {
+									left: 0,
+									right: $map?.getCanvas().width || 0,
+									top: 0,
+									bottom: $map?.getCanvas().height || 0
+								});
+								// ※必要であれば一旦 await を入れて、UI更新を反映させる
+								await new Promise((resolve) => setTimeout(resolve, 0));
+								makeGraphData(features);
+								$isVisible = true;
+								isLoading = false;
+							}}
+						>
+							集計
+						</button>
+					</div>
 				</div>
 			{/if}
 			{#if isSchoolDistrictSelected}
@@ -496,6 +563,8 @@
 					{isTemporalDisplacementVisible}
 					class="absolute bottom-[10px] left-[48px] z-10"
 				/>
+				<ModeControl bind:mode bind:polygonIds {draw} />
+				<TerraDraw bind:draw {modes} {mode} onfinish={onFinish} />
 				<!-- <SelectedTooltip {tooltipData} {tooltipPosition} /> -->
 				<div class="absolute left-3 top-3 z-50">
 					<Legend {selectedLegendTitle} {selectedLegendLayerIds} {closeLegend} />

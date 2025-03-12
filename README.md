@@ -59,6 +59,8 @@
 | 種別              | 名称   | バージョン | 内容 |
 | ----------------- | --------|-------------|-----------------------------|
 | プログラミング言語 | Python  | 3.11       | ・シミュレーション管理システムのバックエンド側Webアプリケーションの開発で利用・シミュレーション管理システムのバックエンド側Webアプリケーション・スパコンに渡すデータを加工する場合のデータコンバータープログラム・シミュレーション結果の加工処理プログラム |
+| プログラミング言語 | Node.js | 22.8.0     | ・フロントエンド開発環境として利用 |
+| フレームワーク    | Vite    |            | ・モダンなフロントエンド開発ツール |
 | ライブラリ | GDAL  |       | ・ラスタ・ベクタ処理用オープンソースGISライブラリ・計算結果の可視化加工処理のデータコンバータープログラムで利用 |
 | ライブラリ | GeoPandas  |       | ・Pythonで大量の数値データを加工するために利用するPandasのGEO対応版・計算結果の可視化加工処理のデータコンバータープログラムで利用 |
 | ライブラリ | AWS Lambda  |       | ・AWS環境でのアプリケーションサーバ実行環境として利用 |
@@ -86,6 +88,30 @@
 |-|-|
 | backend | シミュレーション管理システムのバックエンド側Webアプリケーション |
 | frontend | シミュレーション管理システムのフロントエンド側Webアプリケーション |
+| src/lib/utils | フロントエンド用ユーティリティ関数群。シミュレーション設定ファイル生成などの機能を含む |
+
+### 7.1 環境変数の設定
+
+本システムを実行するには、以下の環境変数の設定が必要です。`.env`ファイルを作成し、必要な値を設定してください。
+
+```bash
+# 実行モード（development/production）
+VITE_MODE=development
+
+# AWS Cognito認証設定
+VITE_COGNITO_REGION=         # AWSリージョン
+VITE_COGNITO_USER_POOL_ID=   # CognitoユーザープールID
+VITE_COGNITO_CLIENT_ID=      # CognitoクライアントID
+VITE_COGNITO_IDENTITY_POOL_ID= # Cognitoアイデンティティプール
+
+# シミュレーションAPI設定
+VITE_SIMULATION_API_ENDPOINT= # シミュレーションAPIのエンドポイント
+VITE_SIMULATION_API_KEY=      # APIキー
+VITE_SIMULATION_WEBHOOK_API_KEY= # WebhookのAPIキー
+
+# データ取得設定
+VITE_CSV_DATA_BASE_URL=      # CSVデータの取得元URL
+```
 
 ## 8. ライセンス
 
