@@ -19,7 +19,7 @@
 
 ## 3. 利用手順
 
-本システムの構築手順及び利用手順については [利用マニュアル](https://plateau-acn.github.io/Earthquake-simulation-tools/) を参照してください。
+本システムの構築手順及び利用手順については [利用マニュアル](https://project-plateau.github.io/Earthquake-simulation-tools/) を参照してください。
 
 ## 4. システム概要
 
