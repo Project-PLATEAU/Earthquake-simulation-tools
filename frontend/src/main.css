@@ -1,8 +1,0 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-.amplify-button--primary {
-    background-color: var(--amplify-colors-teal-80);
-    border-color: var(--amplify-colors-teal-80);
-}
