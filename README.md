@@ -19,7 +19,7 @@
 
 ## 2.「建物振動シミュレーションシステム」について
 
-「建物振動シミュレーションシステム」は、Project PLATEAUで提供している圏直物モデルの属性データを防災の用途に活用することを目的に開発しました。
+「建物振動シミュレーションシステム」は、Project PLATEAUで提供している建築物モデルの属性データを防災の用途に活用することを目的に開発しました。
 
 本システムは、一般ユーザ向けにGUIを備えたオープンソースソフトウェアとしてフルスクラッチで開発されています。
 
@@ -132,4 +132,4 @@ VITE_CSV_DATA_BASE_URL=      # CSVデータの取得元URL
 
 ## 10. 参考資料 <!-- 技術検証レポートのURLはアクセンチュアにて記載します。 -->
 
-- [PLATEAU WebサイトのUse caseページ(https://www.mlit.go.jp/plateau/use-case/uc24-03)
+- PLATEAU WebサイトのUse caseページ「3D都市モデルを活用した建物振動シミュレーションシステムの開発 v2.0」：[https://www.mlit.go.jp/plateau/use-case/uc24-03](https://www.mlit.go.jp/plateau/use-case/uc24-03)
