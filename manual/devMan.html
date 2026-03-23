@@ -120,96 +120,252 @@
 </tr>
 </tbody>
 </table>
-<h1 id="3-ビルド手順">3 ビルド手順</h1>
+<h1 id="3-利用技術">3 利用技術</h1>
+<table>
+<thead>
+<tr>
+<th>カテゴリ</th>
+<th>技術</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>フロントエンド</td>
+<td>SvelteKit 2.x, TypeScript, Svelte 5, Tailwind CSS</td>
+</tr>
+<tr>
+<td>UIコンポーネント</td>
+<td>Melt UI, Svelte Hero Icons</td>
+</tr>
+<tr>
+<td>地図・可視化</td>
+<td>MapLibre GL, Deck.gl, Terra Draw, Chart.js</td>
+</tr>
+<tr>
+<td>バックエンド</td>
+<td>AWS Lambda, Amazon DynamoDB, Amazon S3, AWS Batch</td>
+</tr>
+<tr>
+<td>認証</td>
+<td>Amazon Cognito, AWS Amplify Auth</td>
+</tr>
+<tr>
+<td>インフラ</td>
+<td>AWS CDK (TypeScript)</td>
+</tr>
+<tr>
+<td>モノレポ管理</td>
+<td>Turborepo, pnpm workspace</td>
+</tr>
+<tr>
+<td>ビルドツール</td>
+<td>Vite, pnpm</td>
+</tr>
+</tbody>
+</table>
+<h1 id="4-フォルダ構成">4 フォルダ構成</h1>
+<p>本プロジェクトはTurborepoを使用したモノレポ構成になっています。</p>
+<pre><code class="lang-text">/
+├── apps/
+│   ├── admin/                  # 管理システム (wide/narrow機能)
+│   └── viewer/                 # ビューワーアプリケーション
+├── packages/
+│   ├── shared/                 # 共有型定義・ユーティリティ
+│   ├── ui/                     # 共通UIコンポーネント
+│   ├── aws-client/             # AWS SDKクライアント
+│   └── config/                 # 共通設定
+└── cdk/                        # AWS CDKインフラストラクチャ
+    ├── backend-stack/          # バックエンドリソース
+    ├── platform-stack/         # Cognitoなどのプラットフォーム
+    ├── narrowsim-batch-stack/  # 狭域シミュレーションバッチ
+    └── widesim-batch-stack/    # 広域シミュレーションバッチ
+</code></pre>
+<h1 id="5-必要な環境">5 必要な環境</h1>
+<ul>
+<li><strong>Node.js</strong>: &gt;= 22.0.0 (推奨: 22.18.0)</li>
+<li><strong>pnpm</strong>: &gt;= 9.11.0</li>
+<li><strong>mise</strong>: Node.jsバージョン管理に使用（<code>.tool-versions</code>で管理）</li>
+<li><strong>Docker</strong>: ローカル開発環境の一部で使用</li>
+</ul>
+<h1 id="6-ビルド手順">6 ビルド手順</h1>
 <h3 id="ビルドの準備">ビルドの準備</h3>
 <p>自身でソースファイルをダウンロードしビルドを行うことで、システムを動作させることができます。<br>
 ソースファイルは
 <a href="https://github.com/Project-PLATEAU/Earthquake-simulation-tools/">こちら</a>
 からダウンロード可能です。</p>
-<ol>
-<li><p><strong>環境の確認</strong></p>
-<ul>
-<li>Node.js v16.x以上がインストールされていることを確認</li>
-<li>pnpmがインストールされていることを確認（なければ<code>npm install -g pnpm</code>でインストール）</li>
-</ul>
-</li>
-<li><p><strong>依存関係のインストール</strong></p>
+<h4 id="1-依存関係のインストール">1. 依存関係のインストール</h4>
+<p>パッケージマネージャーとして <a href="https://pnpm.io/ja/installation">pnpm</a> を使用します。</p>
 <pre><code class="lang-bash">pnpm install
 </code></pre>
-</li>
-<li><p><strong>環境変数の設定</strong></p>
-<ul>
-<li>本番環境用の環境変数が<code>.env</code>または<code>.env.production</code>ファイルに設定されていることを確認</li>
-<li>AWS認証情報やAPIエンドポイントなど、必要な設定が完了していることを確認</li>
-</ul>
-</li>
-<li><p><strong>アダプターのインストール</strong></p>
-<ul>
-<li>デプロイ先の環境に応じて適切なアダプターをインストール</li>
-</ul>
-<pre><code class="lang-bash"># AWS Lambda + API Gateway用
-pnpm add -D @sveltejs/adapter-node
-
-# 静的サイトホスティング用
-pnpm add -D @sveltejs/adapter-static
-
-# Vercel用
-pnpm add -D @sveltejs/adapter-vercel
+<h4 id="2-環境変数の設定">2. 環境変数の設定</h4>
+<p><code>.env.example</code>を参考に<code>.env</code>ファイルを作成してください。</p>
+<pre><code class="lang-bash">cp .env.example .env
+# .envファイルを編集
 </code></pre>
-</li>
-<li><p><strong>svelte.config.js の確認</strong></p>
-<ul>
-<li>使用するアダプターが正しく設定されていることを確認</li>
-</ul>
-</li>
-</ol>
+<p><code>apps/viewer/.env.example</code>を参考に<code>apps/viewer/.env</code>ファイルを作成してください。</p>
+<pre><code class="lang-bash">cp apps/viewer/.env.example apps/viewer/.env
+# .envファイルを編集
+</code></pre>
+<h4 id="3-ローカル開発環境の起動docker">3. ローカル開発環境の起動（Docker）</h4>
+<pre><code class="lang-bash">make docker_build    # DynamoDBとMinIOを起動
+make data_init       # 初期データを投入
+</code></pre>
+<h3 id="開発コマンド">開発コマンド</h3>
+<h4 id="開発サーバーの起動">開発サーバーの起動</h4>
+<pre><code class="lang-bash"># 全アプリを起動
+pnpm dev
+
+# 管理システムのみ起動 (http://localhost:5173)
+pnpm dev:admin
+
+# ビューワーのみ起動 (http://localhost:5174)
+pnpm dev:viewer
+
+# Makefileを使用
+make dev          # 全アプリ
+make dev_admin    # 管理システム
+make dev_viewer   # ビューワー
+</code></pre>
 <h3 id="ビルド実行">ビルド実行</h3>
-<p>本番用ビルドを実行します：</p>
-<pre><code class="lang-bash">pnpm run build
+<pre><code class="lang-bash"># 全アプリをビルド
+pnpm build
+
+# 管理システムのみビルド
+pnpm build:admin
+
+# ビューワーのみビルド
+pnpm build:viewer
+
+# Makefileを使用（管理システムのみ）
+make svelte_build
 </code></pre>
-<p>このコマンドは以下の処理を行います：</p>
-<ul>
-<li>TypeScriptのコンパイル</li>
-<li>SvelteコンポーネントのSSRおよびクライアントコードのビルド</li>
-<li>CSSの最適化</li>
-<li>アセットの最適化と圧縮</li>
-<li>選択したアダプターによる出力ディレクトリの構成</li>
-</ul>
-<h3 id="ビルド後の確認">ビルド後の確認</h3>
-<p>ビルドされたアプリケーションをローカルでプレビューするには：</p>
-<pre><code class="lang-bash">pnpm run preview
+<h3 id="コード品質">コード品質</h3>
+<pre><code class="lang-bash"># Lint実行
+pnpm lint
+
+# フォーマット
+pnpm format
+
+# 型チェック
+pnpm check
+
+# テスト実行
+pnpm test
 </code></pre>
-<h3 id="デプロイ">デプロイ</h3>
-<p>デプロイ先環境に応じた手順：</p>
-<ol>
-<li><p><strong>AWS Lambda + API Gateway</strong></p>
+<h3 id="その他">その他</h3>
+<pre><code class="lang-bash"># ビルド成果物の削除
+pnpm clean
+
+# node_modules削除
+make remove_node_modules
+</code></pre>
+<h1 id="7-デプロイ">7 デプロイ</h1>
+<h3 id="フロントエンドのデプロイ">フロントエンドのデプロイ</h3>
+<p>管理システム（admin）とビューワー（viewer）は独立してデプロイ可能です。</p>
+<pre><code class="lang-bash"># 管理システムのビルド
+pnpm build:admin
+
+# ビューワーのビルド
+pnpm build:viewer
+</code></pre>
+<p>ビルド成果物は各アプリの<code>build/</code>ディレクトリに生成されます。</p>
+<h3 id="バックエンドのデプロイ-aws-cdk">バックエンドのデプロイ (AWS CDK)</h3>
+<pre><code class="lang-bash"># バックエンドスタック
+make cdk_deploy_backend
+
+# プラットフォームスタック
+make cdk_deploy_platform
+
+# 狭域シミュレーションバッチ
+make cdk_deploy_narrow
+
+# 広域シミュレーションバッチ
+make cdk_deploy_wide
+</code></pre>
+<h1 id="8-アプリケーション">8 アプリケーション</h1>
+<h3 id="管理システム-admin">管理システム (admin)</h3>
 <ul>
-<li><code>build</code>ディレクトリを Lambda 関数としてデプロイ</li>
-<li>API Gateway との連携設定</li>
+<li><strong>URL</strong>: http://localhost:5173</li>
+<li><strong>機能</strong>:
+<ul>
+<li>広域シミュレーション管理</li>
+<li>狭域シミュレーション管理</li>
+<li>プリセット管理</li>
+<li>シミュレーション予約</li>
 </ul>
 </li>
-<li><p><strong>静的ホスティング (S3, Netlify, GitHub Pages など)</strong></p>
+</ul>
+<h3 id="ビューワー-viewer">ビューワー (viewer)</h3>
 <ul>
-<li><code>build/client</code>ディレクトリの内容をホスティングサービスにアップロード</li>
+<li><strong>URL</strong>: http://localhost:5174</li>
+<li><strong>機能</strong>:
+<ul>
+<li>シミュレーション結果の可視化
+<ul>
+<li>S3からの実データ取得（本番環境）</li>
+<li>モックデータによるフォールバック（開発環境）</li>
 </ul>
 </li>
-<li><p><strong>Dockerコンテナ</strong></p>
-<pre><code class="lang-bash"># Dockerfileがプロジェクトルートにあることを確認
-docker build -t mosiri-app .
-docker run -p 3000:3000 mosiri-app
+<li>建物被害ダッシュボード</li>
+<li>道路閉塞ダッシュボード</li>
+<li>インタラクティブマップ</li>
+<li>過去のシミュレーション一覧表示</li>
+<li>デバッグモード対応（<code>?debug=true</code>パラメータ）</li>
+</ul>
+</li>
+</ul>
+<h3 id="認証">認証</h3>
+<ul>
+<li>AWS Cognitoを使用</li>
+<li>ユーザーロール: admin, operator, viewer</li>
+<li>管理システムへのアクセスには認証が必要</li>
+</ul>
+<h1 id="9-トラブルシューティング">9 トラブルシューティング</h1>
+<h3 id="nodejsバージョンエラー">Node.jsバージョンエラー</h3>
+<pre><code class="lang-bash"># miseでNode.jsをインストール
+mise install node@22.18.0
+
+# .tool-versionsが正しく設定されているか確認
+cat .tool-versions
+# 出力: nodejs 22.18.0
+
+# 現在のバージョンを確認
+mise current node
 </code></pre>
-</li>
-</ol>
-<h3 id="よくある問題と解決策">よくある問題と解決策</h3>
-<ul>
-<li><strong>ビルドエラー</strong>: 依存関係のバージョン不一致の場合は <code>pnpm install</code> を再実行</li>
-<li><strong>環境変数エラー</strong>: <code>.env.production</code> ファイルを確認</li>
-<li><strong>アダプタエラー</strong>: 正しいアダプタがインストールされ、設定されていることを確認</li>
-<li><strong>APIアクセスエラー</strong>: CORS設定とAPIエンドポイントの構成を確認</li>
-</ul>
-<blockquote>
-<p>注意: デプロイ先の環境に合わせて適切な<a href="https://kit.svelte.dev/docs/adapters">adapter</a>を必ずインストールしてください。デフォルトでは開発環境向けのアダプタのみが設定されています。</p>
-</blockquote>
+<h3 id="ビルドエラー">ビルドエラー</h3>
+<pre><code class="lang-bash"># 依存関係の再インストール
+rm -rf node_modules
+pnpm install
+
+# キャッシュのクリア
+pnpm clean
+rm -rf .turbo
+</code></pre>
+<h3 id="docker関連">Docker関連</h3>
+<pre><code class="lang-bash"># コンテナを停止して削除
+make docker_down
+
+# 再起動
+make docker_build
+make data_init
+</code></pre>
+<h3 id="型エラー">型エラー</h3>
+<pre><code class="lang-bash"># 型チェック実行
+pnpm check
+
+# SvelteKitの同期
+cd apps/admin  # または apps/viewer
+npx svelte-kit sync
+</code></pre>
+<h3 id="s3接続エラー開発環境">S3接続エラー（開発環境）</h3>
+<p>開発環境でS3/MinIOが起動していない場合、以下のようにデバッグモードを使用できます:</p>
+<pre><code class="lang-text"># デバッグモード（モックデータを使用）
+# ブラウザで以下のURLにアクセス
+http://localhost:5174/?debug=true
+</code></pre>
+<p>または、MinIOを起動:</p>
+<pre><code class="lang-bash">make docker_build
+</code></pre>
 
 </article>
           </div>
